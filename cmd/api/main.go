@@ -7,5 +7,5 @@ import (
 )
 
 func main() {
-	fmt.Println("Quiz 1 test")
+	fmt.Println("Quiz 2 branch")
 }
