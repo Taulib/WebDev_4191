@@ -24,7 +24,10 @@ type config struct {
 	port int
 	env  string
 	db   struct {
-		dsn string
+		dsn          string
+		maxOpenConns int
+		maxIdleConns int
+		maxIdleTime  string
 	}
 }
 
@@ -41,6 +44,9 @@ func main() {
 	flag.IntVar(&tum.port, "port", 4000, "API Server Port")
 	flag.StringVar(&tum.env, "env", "development", "Enviornment (development | staging | production)")
 	flag.StringVar(&tum.db.dsn, "db-dsn", os.Getenv("COURSES_DB_DSN"), "PostgresSQL DSN")
+	flag.IntVar(&tum.db.maxOpenConns, "db-max-open-conns", 25, "PostgresSQL max open connections")
+	flag.IntVar(&tum.db.maxIdleConns, "db-max-idle-conns", 25, "PostgresSQL max idle connections")
+	flag.StringVar(&tum.db.maxIdleTime, "db-max-idle-time", "15m", "PostgresSQL max connection idle time")
 	flag.Parse()
 
 	// creating a logger
@@ -51,6 +57,8 @@ func main() {
 		logger.Fatal(err)
 	}
 	defer db.Close()
+	//log sucessful connection pool
+	logger.Println("database connection pool was established")
 	//creating a instance of our application structure
 	app := &application{
 		config: tum,
@@ -82,7 +90,13 @@ func openDB(tum config) (*sql.DB, error) {
 	if err != nil {
 		return nil, err
 	}
-
+	db.SetMaxOpenConns(tum.db.maxOpenConns)
+	db.SetMaxIdleConns(tum.db.maxIdleConns)
+	duration, err := time.ParseDuration(tum.db.maxIdleTime)
+	if err != nil {
+		return nil, err
+	}
+	db.SetConnMaxIdleTime(duration)
 	// create a context with a 5-second timeout deadline
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
