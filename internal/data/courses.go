@@ -8,10 +8,10 @@ import (
 )
 
 type Courses struct {
-	ID          int64
-	CourseName  string
-	CreditHours int64
-	CreatedAt   time.Time
+	ID          int64     `json:"id"`
+	CourseName  string    `json:"name,omitempty"`
+	CreditHours int64     `josn:"hours"`
+	CreatedAt   time.Time `json:"-"`
 }
 
 // Defining the course model to wrap a sql.DB connection pool
