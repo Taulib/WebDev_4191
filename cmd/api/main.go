@@ -13,6 +13,7 @@ import (
 	"time"
 
 	_ "github.com/lib/pq"
+	"quiz1.taulib.net/internal/data"
 )
 
 // Application version number
@@ -35,6 +36,7 @@ type config struct {
 type application struct {
 	config config
 	logger *log.Logger
+	Models data.Models
 }
 
 func main() {
@@ -63,6 +65,7 @@ func main() {
 	app := &application{
 		config: tum,
 		logger: logger,
+		Models: data.NewModels(db),
 	}
 
 	//creating our ServerMux
@@ -107,3 +110,41 @@ func openDB(tum config) (*sql.DB, error) {
 	}
 	return db, nil
 }
+
+// we weill create a map that will store validation errors
+type Validator struct {
+	Errors map[string]string
+}
+
+func New() *Validator {
+	return &Validator{
+		Errors: make(map[string]string),
+	}
+}
+
+// methods that operate on our Validator type
+// check if the mao has any entries
+func (v *Validator) Valid() bool {
+	return len(v.Errors) == 0
+}
+
+// add an entry to the map if the key does not already exist
+func (v *Validator) AddError(key, message string) {
+	// check if the key is already in the map
+	if _, exists := v.Errors[key]; !exists {
+		v.Errors[key] = message
+	}
+}
+
+// check to see if a element can be found in a list of items
+func In(element string, list ...string) bool {
+	for i := range list {
+		if element == list[i] {
+			return true
+		}
+
+	}
+	return false
+}
+
+//
