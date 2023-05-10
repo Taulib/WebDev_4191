@@ -8,7 +8,8 @@ import (
 )
 
 var (
-	ErrRecordNotFound = errors.New("Record Not Found")
+	ErrRecordNotFound = errors.New("record Not Found")
+	ErrEditConflict   = errors.New("edit conflict")
 )
 
 // Create a wrapper for our data models

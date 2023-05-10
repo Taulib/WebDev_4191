@@ -14,6 +14,7 @@ type Courses struct {
 	CourseName  string    `json:"Course Name"`
 	CreditHours string    `josn:"Credit Hours"`
 	CreatedAt   time.Time `json:"-"`
+	Version     int32     `json:"version`
 }
 
 // Defining the course model to wrap a sql.DB connection pool
@@ -72,7 +73,8 @@ func (m CourseModel) Get(CourseID int64) (*Courses, error) {
 	return &Courses, nil
 }
 
-// Update() allows us to update or edit a specfic course
+// Update() allows us to update or edit a specfic
+// using Optimistic locking
 func (m CourseModel) Update(Courses *Courses) error {
 	// Create a query
 	query := `
@@ -86,9 +88,17 @@ func (m CourseModel) Update(Courses *Courses) error {
 		Courses.CourseName,
 		Courses.CreditHours,
 	}
-
-	return m.DB.QueryRow(query, args...).Scan(&Courses.CreditHours)
-
+	// check for edit conflicts
+	err := m.DB.QueryRow(query, args...).Scan(&Courses.CreditHours)
+	if err != nil {
+		switch {
+		case errors.Is(err, sql.ErrNoRows):
+			return ErrEditConflict
+		default:
+			return err
+		}
+	}
+	return nil
 }
 
 // Delete will remove a specified course

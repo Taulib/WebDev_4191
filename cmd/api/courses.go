@@ -100,8 +100,8 @@ func (app *application) updateCoursesHandler(w http.ResponseWriter, r *http.Requ
 	// default value of nil
 	// If a field remains nil then we know that the client did not update it
 	var input struct {
-		CourseName  string `json:"Course Name"`
-		CreditHours string `josn:"Credit Hours"`
+		CourseName  *string `json:"Course Name"`
+		CreditHours *string `josn:"Credit Hours"`
 	}
 
 	// Initialize a new json.Decoder instance
@@ -111,9 +111,26 @@ func (app *application) updateCoursesHandler(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	// update the fields /values in the school variable using the fields in the input struct
-	Courses.CourseName = input.CourseName
-	Courses.CreditHours = input.CreditHours
+	// check for updates
+	if input.CourseName != nil {
+		Courses.CourseName = *input.CourseName
+	}
+
+	if input.CreditHours != nil {
+		Courses.CreditHours = *input.CreditHours
+	}
+
+	// Pass the updated course record to the Update() method
+	err = app.Models.Courses.Update(Courses)
+	if err != nil {
+		switch {
+		case errors.Is(err, data.ErrEditConflict):
+			app.editConflictResponse(w, r)
+		default:
+			app.serverErrorResponse(w, r, err)
+		}
+		return
+	}
 
 	// Write the data returned by Get()
 	err = app.writeJSON(w, http.StatusOK, envelope{"Courses": Courses}, nil)
