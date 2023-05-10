@@ -49,14 +49,14 @@ func (app *application) createCoursesHandler(w http.ResponseWriter, r *http.Requ
 // showsCoursesHandler for "GET /v1/courses/:id"
 func (app *application) showCoursesHandler(w http.ResponseWriter, r *http.Request) {
 
-	id, err := app.readIDParam(r)
+	CourseID, err := app.readIDParam(r)
 	if err != nil {
 		app.notFoundResponse(w, r)
 		return
 
 	}
 	// fetch the specific Course
-	courses, err := app.Models.Courses.Get(id)
+	Courses, err := app.Models.Courses.Get(CourseID)
 	// Handle errors
 	if err != nil {
 		switch {
@@ -68,7 +68,7 @@ func (app *application) showCoursesHandler(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	err = app.writeJSON(w, http.StatusOK, envelope{"courses": courses}, nil)
+	err = app.writeJSON(w, http.StatusOK, envelope{"Courses": Courses}, nil)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 	}
@@ -117,6 +117,34 @@ func (app *application) updateCoursesHandler(w http.ResponseWriter, r *http.Requ
 
 	// Write the data returned by Get()
 	err = app.writeJSON(w, http.StatusOK, envelope{"Courses": Courses}, nil)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+	}
+}
+
+func (app *application) deleteCoursesHandler(w http.ResponseWriter, r *http.Request) {
+
+	CourseID, err := app.readIDParam(r)
+	if err != nil {
+		app.notFoundResponse(w, r)
+		return
+
+	}
+
+	// deleting the Course form the database, send a 404 not found status code to the client if there is no matching record
+	err = app.Models.Courses.Delete(CourseID)
+	if err != nil {
+		switch {
+		case errors.Is(err, data.ErrRecordNotFound):
+			app.notFoundResponse(w, r)
+		default:
+			app.serverErrorResponse(w, r, err)
+		}
+		return
+	}
+
+	//Return the 200 Status Ok to the Client with a sucess message
+	err = app.writeJSON(w, http.StatusOK, envelope{"Message": "Course Sucessfully Deleted!"}, nil)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 	}

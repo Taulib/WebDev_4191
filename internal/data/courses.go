@@ -37,9 +37,9 @@ func (m CourseModel) Insert(Courses *Courses) error {
 }
 
 // Get() will allow us to retrieve a specific Course
-func (m CourseModel) Get(id int64) (*Courses, error) {
+func (m CourseModel) Get(CourseID int64) (*Courses, error) {
 	// Ensure that there is a valid id
-	if id < 1 {
+	if CourseID < 1 {
 		return nil, ErrRecordNotFound
 	}
 	// Create our query
@@ -51,7 +51,7 @@ func (m CourseModel) Get(id int64) (*Courses, error) {
 	// dECLARE A COURSE VARIABLE to hold the returned data
 	var Courses Courses
 	// execute the query using QueryRow()
-	err := m.DB.QueryRow(query, id).Scan(
+	err := m.DB.QueryRow(query, CourseID).Scan(
 		&Courses.CourseID,
 		&Courses.CourseName,
 		&Courses.CreditHours,
@@ -91,6 +91,32 @@ func (m CourseModel) Update(Courses *Courses) error {
 }
 
 // Delete will remove a specified course
-func (m CourseModel) Delete(id int64) error {
+func (m CourseModel) Delete(CourseID int64) error {
+	// Ensure that there is a valid id
+	if CourseID < 1 {
+		return ErrRecordNotFound
+	}
+	// Create the delete query
+	query := `
+		DELETE FROM courses
+		WHERE CourseID = $1
+		`
+	// execute the query
+
+	result, err := m.DB.Exec(query, CourseID)
+	if err != nil {
+		return err
+	}
+
+	// check how many rows where affected by the delete operation using method called rowsAffected
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+
+	// check to see if there where zero rows affected
+	if rowsAffected == 0 {
+		return ErrRecordNotFound
+	}
 	return nil
 }
