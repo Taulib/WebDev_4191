@@ -1,1 +1,1 @@
-COPY coursesT FROM '/home/taulib/Documents/WebDev_4191/quiz1/migrations/Book1.csv' WITH delimiter ',' CSV HEADER;
+COPY courses FROM '/home/taulib/Documents/WebDev_4191/quiz1/migrations/Book1.csv' WITH delimiter ',' CSV HEADER;

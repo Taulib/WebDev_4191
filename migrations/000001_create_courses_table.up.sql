@@ -1,7 +1,7 @@
 -- Filename: migrations/000001_createcourses_table.up.sql
 
-CREATE TABLE IF NOT EXISTS coursesT (
-    coursesID varchar NOT NULL,
-    coursesName text NOT NULL,
-    creditHours int NOT NULL
+CREATE TABLE IF NOT EXISTS courses (
+    CoursesID int NOT NULL,
+    CourseName text NOT NULL,
+    CreditHours int NOT NULL
 );
