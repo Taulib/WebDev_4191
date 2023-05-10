@@ -8,10 +8,11 @@ import (
 	"time"
 )
 
+// this truct represents a new row of data in our table
 type Courses struct {
-	CourseID    int64     `json:"id"`
-	CourseName  string    `json:"name,omitempty"`
-	CreditHours int64     `josn:"hours"`
+	CourseID    int64     `json:"Course ID"`
+	CourseName  string    `json:"Course Name"`
+	CreditHours string    `josn:"Credit Hours"`
 	CreatedAt   time.Time `json:"-"`
 }
 
@@ -25,14 +26,14 @@ func (m CourseModel) Insert(Courses *Courses) error {
 	query := `
 		INSERT INTO courses (CourseName, CreditHours)
 		VALUES ($1, $2)
-		RETURNING CourseID, CreatedAT
+		RETURNING CourseID
 	`
 	// Collect the data fields into a slice
 	args := []interface{}{
 		Courses.CourseName,
 		Courses.CreditHours,
 	}
-	return m.DB.QueryRow(query, args...).Scan(&Courses.CourseID, &Courses.CreditHours, &Courses.CreatedAt)
+	return m.DB.QueryRow(query, args...).Scan(&Courses.CourseID)
 
 }
 
@@ -44,7 +45,7 @@ func (m CourseModel) Get(CourseID int64) (*Courses, error) {
 	}
 	// Create our query
 	query := `
-		SELECT CourseID, CourseName, CreditHours
+		SELECT *
 		FROM courses 
 		WHERE CourseID = $1
 	`
@@ -78,7 +79,7 @@ func (m CourseModel) Update(Courses *Courses) error {
 		UPDATE courses
 		SET CourseName = $1, CreditHours = $2
 		WHERE CourseID = $3
-		AND CreditHours = $3
+		AND CreditHours = $4
 		RETURNING CreditHours
 	`
 	args := []interface{}{

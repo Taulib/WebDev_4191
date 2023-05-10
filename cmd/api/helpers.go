@@ -19,11 +19,11 @@ type envelope map[string]interface{}
 func (app *application) readIDParam(r *http.Request) (int64, error) {
 	params := httprouter.ParamsFromContext(r.Context())
 
-	id, err := strconv.ParseInt(params.ByName("id"), 10, 64)
-	if err != nil || id < 1 {
-		return 0, errors.New("invalid id parameter")
+	CourseID, err := strconv.ParseInt(params.ByName("CourseID"), 10, 64)
+	if err != nil || CourseID < 1 {
+		return 0, errors.New("invalid CourseID parameter")
 	}
-	return id, nil
+	return CourseID, nil
 }
 
 func (app *application) writeJSON(w http.ResponseWriter, status int, data envelope, headers http.Header) error {
@@ -44,7 +44,7 @@ func (app *application) writeJSON(w http.ResponseWriter, status int, data envelo
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
 	// write the byte slice
-	w.Write(js)
+	w.Write([]byte(js))
 	return nil
 
 }

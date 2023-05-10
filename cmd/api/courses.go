@@ -12,10 +12,11 @@ import (
 
 // createCourseHandler for the "POST /v1/courses"
 func (app *application) createCoursesHandler(w http.ResponseWriter, r *http.Request) {
-	// our taget decode destination
+
+	// our taget decode destination Create a struct to hold  a course that will be provided to us via request
 	var input struct {
-		CourseName  string `json:"name,omitempty"`
-		CreditHours int64  `josn:"hours"`
+		CourseName  string `json:"Course Name"`
+		CreditHours string `json:"CreditHours"`
 	}
 	Courses := &data.Courses{
 		CourseName:  input.CourseName,
@@ -27,10 +28,8 @@ func (app *application) createCoursesHandler(w http.ResponseWriter, r *http.Requ
 		app.badRequestResponse(w, r, err)
 		return
 	}
-	// display the request
-	fmt.Fprintf(w, "%+v\n", input)
 
-	// create a school
+	// create a course
 	err = app.Models.Courses.Insert(Courses)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
@@ -39,6 +38,7 @@ func (app *application) createCoursesHandler(w http.ResponseWriter, r *http.Requ
 	// create a location header for new created resource/course
 	headers := make(http.Header)
 	headers.Set("Location", fmt.Sprintf("v1,courses/%d", Courses.CourseID))
+
 	// write the JSON response with 201 - Created status code wiht the body being the schooldata and the header being the headers map
 	err = app.writeJSON(w, http.StatusCreated, envelope{"course": Courses}, headers)
 	if err != nil {
@@ -100,16 +100,16 @@ func (app *application) updateCoursesHandler(w http.ResponseWriter, r *http.Requ
 	// default value of nil
 	// If a field remains nil then we know that the client did not update it
 	var input struct {
-		CourseName  string `json:"name,omitempty"`
-		CreditHours int64  `josn:"hours"`
+		CourseName  string `json:"Course Name"`
+		CreditHours string `josn:"Credit Hours"`
 	}
 
-	/*// Initialize a new json.Decoder instance
-	err = app.readJSON(w, r, &input)
+	// Initialize a new json.Decoder instance
+	err = app.readJOSN(w, r, &input)
 	if err != nil {
 		app.badRequestResponse(w, r, err)
 		return
-	}*/
+	}
 
 	// update the fields /values in the school variable using the fields in the input struct
 	Courses.CourseName = input.CourseName

@@ -1,7 +1,7 @@
 -- Filename: migrations/000001_createcourses_table.up.sql
 
 CREATE TABLE IF NOT EXISTS courses (
-    CoursesID int NOT NULL,
+    CourseID bigserial PRIMARY KEY,
     CourseName text NOT NULL,
-    CreditHours int NOT NULL
+    CreditHours text NOT NULL
 );

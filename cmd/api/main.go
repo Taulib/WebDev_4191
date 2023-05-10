@@ -78,11 +78,11 @@ func main() {
 		Handler:      app.routes(),
 		IdleTimeout:  time.Minute,
 		ReadTimeout:  10 * time.Second,
-		WriteTimeout: 30 * time.Second,
+		WriteTimeout: 10 * time.Second,
 	}
 
 	// Starting our server
-	logger.Printf("Starting %s server is on %s", tum.env, srv.Addr)
+	logger.Printf("Starting %s server is on %d", tum.env, tum.port)
 	err = srv.ListenAndServe()
 	logger.Fatal(err)
 }
@@ -101,7 +101,7 @@ func openDB(tum config) (*sql.DB, error) {
 	}
 	db.SetConnMaxIdleTime(duration)
 	// create a context with a 5-second timeout deadline
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
 	err = db.PingContext(ctx)
